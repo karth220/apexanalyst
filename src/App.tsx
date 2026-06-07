@@ -88,11 +88,16 @@ function App() {
 
   // Delete an existing research report
   const handleDeleteReport = (id: string, ticker: string) => {
-    if (window.confirm(`Are you sure you want to delete the research report for ${ticker}?`)) {
+    const password = prompt(`Enter analyst passcode to confirm deletion of ${ticker} report:`);
+    if (password === null) return; // user cancelled
+
+    if (password === ANALYST_PASSCODE) {
       const updated = reports.filter(r => r.id !== id);
       setReports(updated);
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
       showToast(`Report for ${ticker} deleted successfully.`, 'success');
+    } else {
+      alert('Incorrect passcode. Deletion aborted.');
     }
   };
 
