@@ -22,6 +22,9 @@ function App() {
   const [editingLtpId, setEditingLtpId] = useState<string | null>(null);
   const [editingLtpValue, setEditingLtpValue] = useState('');
 
+  // Real-time fetched prices state
+  const [fetchedPrices, setFetchedPrices] = useState<{ [ticker: string]: number }>({});
+
   // Sort states
   const [sortField, setSortField] = useState<keyof ResearchReport | 'upside' | 'changeSinceReco'>('date');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
@@ -126,17 +129,75 @@ function App() {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(DEFAULT_REPORTS));
   }, []);
 
-  // Simulate live stock price (LTP) fluctuations in the background when market is open
+  // Fetch real-time stock prices (LTP) from serverless API
   useEffect(() => {
-    // Only tick when on the homepage and we have reports
+    if (activePage !== 'home' || reports.length === 0) return;
+
+    const fetchRealPrices = async () => {
+      try {
+        const uniqueTickers = [...new Set(reports.map(r => r.ticker))];
+        if (uniqueTickers.length === 0) return;
+
+        const response = await fetch(`/api/get-prices?tickers=${uniqueTickers.join(',')}`);
+        if (!response.ok) return;
+
+        const data = await response.json();
+        if (data && data.prices) {
+          // Update the fetchedPrices map state
+          const newPricesMap: { [ticker: string]: number } = {};
+          Object.keys(data.prices).forEach(tk => {
+            newPricesMap[tk] = data.prices[tk].price;
+          });
+          setFetchedPrices(newPricesMap);
+
+          // Update current prices in the reports state
+          setReports(prevReports => {
+            let changed = false;
+            const updated = prevReports.map(report => {
+              if (data.prices[report.ticker]) {
+                const fetchedPrice = data.prices[report.ticker].price;
+                if (fetchedPrice > 0 && fetchedPrice !== report.currentPrice) {
+                  changed = true;
+                  return {
+                    ...report,
+                    currentPrice: fetchedPrice
+                  };
+                }
+              }
+              return report;
+            });
+            return changed ? updated : prevReports;
+          });
+        }
+      } catch (err) {
+        console.error('Failed to fetch real-time stock prices:', err);
+      }
+    };
+
+    fetchRealPrices();
+    const interval = setInterval(fetchRealPrices, 30000);
+    return () => clearInterval(interval);
+  }, [activePage, reports.length]);
+
+  // Simulate minor live fluctuations around the correct price (anchored to prevent drift)
+  useEffect(() => {
     if (activePage !== 'home' || reports.length === 0) return;
 
     const interval = setInterval(() => {
       setReports(prevReports => {
         return prevReports.map(report => {
-          // Normal market fluctuation (-0.08% to +0.08%)
-          const fluctuation = (Math.random() - 0.485) * 0.0012; // slight upward bias
-          const newPrice = Math.max(0.01, report.currentPrice * (1 + fluctuation));
+          // Use fetched price as the anchor, or if not fetched, use the current report price
+          const anchorPrice = fetchedPrices[report.ticker] || report.currentPrice;
+          
+          // Limit fluctuation to +/- 0.05% of the anchor price to prevent runaway drift
+          const maxFluctuation = 0.0005; 
+          const currentOffset = (report.currentPrice - anchorPrice) / anchorPrice;
+          
+          // Pulling force back to the anchor if it drifts too far
+          const pull = -currentOffset * 0.5;
+          const randomChange = (Math.random() - 0.5) * maxFluctuation;
+          
+          const newPrice = report.currentPrice * (1 + randomChange + pull);
           
           return {
             ...report,
@@ -144,10 +205,10 @@ function App() {
           };
         });
       });
-    }, 5000);
+    }, 4000);
 
     return () => clearInterval(interval);
-  }, [activePage, reports.length]);
+  }, [activePage, reports.length, fetchedPrices]);
 
   // Show status toast helper
   const showToast = (message: string, type: 'success' | 'download' = 'success') => {
@@ -345,19 +406,19 @@ function App() {
                       </th>
                       <th onClick={() => handleSort('currentPrice')} className="sortable-header text-right">
                         <div className="header-cell justify-end">
-                          <span>LTP</span>
+                          <span>LTP (₹)</span>
                           {renderSortIcon('currentPrice')}
                         </div>
                       </th>
                       <th onClick={() => handleSort('targetPrice')} className="sortable-header text-right">
                         <div className="header-cell justify-end">
-                          <span>TARGET</span>
+                          <span>TARGET (₹)</span>
                           {renderSortIcon('targetPrice')}
                         </div>
                       </th>
                       <th onClick={() => handleSort('recoPrice')} className="sortable-header text-right">
                         <div className="header-cell justify-end">
-                          <span>PRICE AT RECO</span>
+                          <span>PRICE AT RECO (₹)</span>
                           {renderSortIcon('recoPrice')}
                         </div>
                       </th>
@@ -462,18 +523,18 @@ function App() {
                                 title={isAuthorized ? "Click to edit LTP" : undefined}
                                 style={{ cursor: isAuthorized ? 'pointer' : 'default' }}
                               >
-                                <span>{report.currentPrice.toFixed(2)}</span>
+                                <span>₹{report.currentPrice.toFixed(2)}</span>
                                 {isAuthorized && <span className="ltp-edit-indicator">✎</span>}
                               </div>
                             )}
                           </td>
                           
                           {/* Target */}
-                          <td className="text-right monospace">{report.targetPrice.toFixed(2)}</td>
+                          <td className="text-right monospace">₹{report.targetPrice.toFixed(2)}</td>
                           
                           {/* Price at Reco */}
                           <td className="text-right monospace">
-                            <div className="font-semibold">{report.recoPrice.toFixed(2)}</div>
+                            <div className="font-semibold">₹{report.recoPrice.toFixed(2)}</div>
                             <div className={`change-reco-text ${isPositiveChange ? 'positive' : isNegativeChange ? 'negative' : 'neutral'}`}>
                               ({isPositiveChange ? '+' : ''}{changeSinceReco.toFixed(2)}%)
                             </div>

@@ -2,28 +2,72 @@ import React, { useEffect, useState } from 'react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 import type { MarketIndex } from '../types';
 
+const INDEX_MAP: { [key: string]: string } = {
+  '^NSEI': 'NIFTY 50',
+  '^BSESN': 'SENSEX',
+  '^NSEBANK': 'NIFTY BANK',
+  '^CNXIT': 'NIFTY IT',
+  '^INDIAVIX': 'INDIA VIX',
+};
+
 export const MarketTicker: React.FC = () => {
   const [indices, setIndices] = useState<MarketIndex[]>([
-    { name: 'NIFTY 50', value: 23290.15, change: 125.50, changePercent: 0.54 },
-    { name: 'SENSEX', value: 76690.40, change: 430.10, changePercent: 0.56 },
+    { name: 'NIFTY 50', value: 23366.70, change: -49.30, changePercent: -0.21 },
+    { name: 'SENSEX', value: 74243.34, change: -118.90, changePercent: -0.16 },
     { name: 'NIFTY BANK', value: 49800.20, change: -110.30, changePercent: -0.22 },
     { name: 'NIFTY IT', value: 34850.60, change: 295.90, changePercent: 0.86 },
     { name: 'INDIA VIX', value: 13.85, change: -0.65, changePercent: -4.48 },
   ]);
 
+  // Fetch real index prices from serverless API
+  useEffect(() => {
+    const fetchRealPrices = async () => {
+      try {
+        const symbols = Object.keys(INDEX_MAP).join(',');
+        const response = await fetch(`/api/get-prices?tickers=${symbols}`);
+        if (!response.ok) return;
+        const data = await response.json();
+        if (data && data.prices) {
+          setIndices(prevIndices =>
+            prevIndices.map(index => {
+              // Find matching symbol
+              const symbol = Object.keys(INDEX_MAP).find(key => INDEX_MAP[key] === index.name);
+              if (symbol && data.prices[symbol]) {
+                const fetched = data.prices[symbol];
+                return {
+                  name: index.name,
+                  value: fetched.price,
+                  change: fetched.change,
+                  changePercent: fetched.changePercent,
+                };
+              }
+              return index;
+            })
+          );
+        }
+      } catch (err) {
+        console.error('Failed to fetch real-time index prices:', err);
+      }
+    };
+
+    fetchRealPrices();
+    // Poll every 60 seconds
+    const apiInterval = setInterval(fetchRealPrices, 60000);
+    return () => clearInterval(apiInterval);
+  }, []);
+
   // Simulate market fluctuation to make the dashboard feel live and interactive
   useEffect(() => {
-    const interval = setInterval(() => {
+    const simulationInterval = setInterval(() => {
       setIndices(prevIndices => 
         prevIndices.map(index => {
           const isVix = index.name === 'INDIA VIX';
-          const maxVolatility = isVix ? 0.08 : 0.005; // VIX moves faster
-          const changePercent = (Math.random() - (isVix ? 0.52 : 0.48)) * maxVolatility; // slight upward bias for indices
+          const maxVolatility = isVix ? 0.005 : 0.0003; // small simulation ticks so it doesn't drift too far
+          const changePercent = (Math.random() - 0.5) * maxVolatility;
           const newValue = index.value * (1 + changePercent);
           const valueDiff = newValue - index.value;
           const newChange = index.change + valueDiff;
-          // Standard reference price baseline to prevent running away too far
-          const baseline = isVix ? 14.00 : index.name === 'NIFTY 50' ? 23300 : index.name === 'SENSEX' ? 76700 : index.name === 'NIFTY BANK' ? 49800 : 34800;
+          const baseline = isVix ? 14.00 : index.name === 'NIFTY 50' ? 23300 : index.name === 'SENSEX' ? 74200 : index.name === 'NIFTY BANK' ? 49800 : 34800;
           const newChangePercent = (newChange / baseline) * 100;
 
           return {
@@ -36,7 +80,7 @@ export const MarketTicker: React.FC = () => {
       );
     }, 4000);
 
-    return () => clearInterval(interval);
+    return () => clearInterval(simulationInterval);
   }, []);
 
   // Duplicate items to ensure smooth loop infinite marquee scrolling effect
@@ -66,3 +110,4 @@ export const MarketTicker: React.FC = () => {
     </div>
   );
 };
+
