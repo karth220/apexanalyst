@@ -721,6 +721,27 @@ a {
   box-shadow: var(--glow-indigo);
 }
 
+/* Delete Button */
+.btn-delete {
+  background: rgba(244, 63, 94, 0.08);
+  border: 1px solid rgba(244, 63, 94, 0.2);
+  color: var(--color-rose);
+  padding: 0.6rem;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-smooth);
+}
+
+.btn-delete:hover {
+  background-color: var(--color-rose);
+  color: #fff;
+  border-color: var(--color-rose);
+  box-shadow: var(--glow-rose);
+}
+
 /* Analyst Portal Form Layout */
 .portal-layout {
   display: grid;
