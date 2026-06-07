@@ -145,10 +145,6 @@ function App() {
             <div className="dashboard-hero animate-fade-in">
               <span className="hero-subtitle">Equity Research Hub</span>
               <h1 className="hero-title">Institutional Grade Stock Insights</h1>
-              <p className="hero-desc">
-                Browse, upload, and download detailed stock analysis PDF reports. 
-                Keep track of target price estimates, upside potentials, and analyst theses.
-              </p>
             </div>
 
             {/* Searching and Filtering controls */}
