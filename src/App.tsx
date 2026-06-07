@@ -7,7 +7,7 @@ import { DEFAULT_REPORTS } from './data/reports';
 import type { ResearchReport } from './types';
 import { Search, Filter, CheckCircle, Download, Lock } from 'lucide-react';
 
-const LOCAL_STORAGE_KEY = 'apexanalyst_reports';
+const LOCAL_STORAGE_KEY = 'apexanalysis_reports';
 const ANALYST_PASSCODE = 'APEX99';
 
 function App() {
@@ -270,8 +270,8 @@ function App() {
 
       {/* Footer Branding */}
       <footer className="site-footer">
-        <div className="footer-brand">ApexAnalyst Inc.</div>
-        <p>&copy; {new Date().getFullYear()} ApexAnalyst. All rights reserved. Powered by client-side static storage.</p>
+        <div className="footer-brand">ApexAnalysis Inc.</div>
+        <p>&copy; {new Date().getFullYear()} ApexAnalysis. All rights reserved. Powered by client-side static storage.</p>
       </footer>
 
       {/* Dynamic Toast Feedback Overlay */}
