@@ -87,11 +87,11 @@ export const ReportCard: React.FC<ReportCardProps> = ({
       <div className="pricing-grid">
         <div className="price-item">
           <span className="price-label">Current</span>
-          <span className="price-value">${currentPrice.toFixed(2)}</span>
+          <span className="price-value">₹{currentPrice.toFixed(2)}</span>
         </div>
         <div className="price-item">
           <span className="price-label">Target</span>
-          <span className="price-value">${targetPrice.toFixed(2)}</span>
+          <span className="price-value">₹{targetPrice.toFixed(2)}</span>
         </div>
         <div className="price-item">
           <span className="price-label">Upside</span>
