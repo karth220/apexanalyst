@@ -1060,3 +1060,87 @@ a {
   color: var(--text-secondary);
   margin-bottom: 0.25rem;
 }
+
+/* Access Gate Styles */
+.access-gate-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 50vh;
+  padding: 2rem 0;
+}
+
+.access-gate-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 3rem 2rem;
+  max-width: 450px;
+  width: 100%;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.lock-icon-wrapper {
+  background-color: rgba(99, 102, 241, 0.1);
+  color: var(--color-primary);
+  width: 70px;
+  height: 70px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.2));
+  animation: pulse-light 2s infinite ease-in-out;
+}
+
+.access-gate-card h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 0.75rem;
+  background: linear-gradient(135deg, #ffffff 50%, #a5b4fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.access-gate-card p {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin-bottom: 2rem;
+}
+
+.gate-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.gate-error {
+  color: var(--color-rose);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+  display: block;
+}
+
+.gate-actions {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+}
+
+.gate-actions button {
+  flex: 1;
+  justify-content: center;
+}
+
+.text-center {
+  text-align: center;
+}
