@@ -86,6 +86,16 @@ function App() {
     showToast(`Research report for ${newReport.ticker} published successfully!`, 'success');
   };
 
+  // Delete an existing research report
+  const handleDeleteReport = (id: string, ticker: string) => {
+    if (window.confirm(`Are you sure you want to delete the research report for ${ticker}?`)) {
+      const updated = reports.filter(r => r.id !== id);
+      setReports(updated);
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
+      showToast(`Report for ${ticker} deleted successfully.`, 'success');
+    }
+  };
+
   // Import external database JSON
   const handleImportDatabase = (importedReports: ResearchReport[]) => {
     setReports(importedReports);
@@ -198,6 +208,8 @@ function App() {
                       report={report} 
                       onDownloadStart={() => showToast(`Preparing ${report.fileName || report.ticker + '.pdf'} for download...`, 'download')}
                       onDownloadEnd={() => showToast(`Report for ${report.ticker} downloaded!`, 'success')}
+                      isAnalystMode={isAuthorized}
+                      onDelete={() => handleDeleteReport(report.id, report.ticker)}
                     />
                   </div>
                 ))
