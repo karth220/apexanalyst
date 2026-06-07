@@ -18,6 +18,10 @@ function App() {
   const [passcodeAttempt, setPasscodeAttempt] = useState('');
   const [passcodeError, setPasscodeError] = useState('');
 
+  // LTP editing states
+  const [editingLtpId, setEditingLtpId] = useState<string | null>(null);
+  const [editingLtpValue, setEditingLtpValue] = useState('');
+
   // Sort states
   const [sortField, setSortField] = useState<keyof ResearchReport | 'upside' | 'changeSinceReco'>('date');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
@@ -115,6 +119,29 @@ function App() {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(DEFAULT_REPORTS));
   }, []);
 
+  // Simulate live stock price (LTP) fluctuations in the background when market is open
+  useEffect(() => {
+    // Only tick when on the homepage and we have reports
+    if (activePage !== 'home' || reports.length === 0) return;
+
+    const interval = setInterval(() => {
+      setReports(prevReports => {
+        return prevReports.map(report => {
+          // Normal market fluctuation (-0.08% to +0.08%)
+          const fluctuation = (Math.random() - 0.485) * 0.0012; // slight upward bias
+          const newPrice = Math.max(0.01, report.currentPrice * (1 + fluctuation));
+          
+          return {
+            ...report,
+            currentPrice: Number(newPrice.toFixed(2))
+          };
+        });
+      });
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [activePage, reports.length]);
+
   // Show status toast helper
   const showToast = (message: string, type: 'success' | 'download' = 'success') => {
     setToastMessage(message);
@@ -164,6 +191,25 @@ function App() {
       showToast(`Report for ${ticker} deleted successfully.`, 'success');
     } else {
       alert('Incorrect passcode. Deletion aborted.');
+    }
+  };
+
+  // Save manually edited LTP
+  const handleSaveLtp = (id: string) => {
+    const val = parseFloat(editingLtpValue);
+    if (!isNaN(val) && val > 0) {
+      const updated = reports.map(r => {
+        if (r.id === id) {
+          return { ...r, currentPrice: Number(val.toFixed(2)) };
+        }
+        return r;
+      });
+      setReports(updated);
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
+      setEditingLtpId(null);
+      showToast(`LTP updated successfully.`, 'success');
+    } else {
+      setEditingLtpId(null);
     }
   };
 
@@ -382,7 +428,38 @@ function App() {
                           </td>
                           
                           {/* LTP */}
-                          <td className="text-right monospace">{report.currentPrice.toFixed(2)}</td>
+                          <td className="text-right monospace">
+                            {editingLtpId === report.id ? (
+                              <input
+                                type="number"
+                                step="0.01"
+                                className="table-ltp-input monospace"
+                                value={editingLtpValue}
+                                onChange={(e) => setEditingLtpValue(e.target.value)}
+                                onBlur={() => handleSaveLtp(report.id)}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') handleSaveLtp(report.id);
+                                  if (e.key === 'Escape') setEditingLtpId(null);
+                                }}
+                                autoFocus
+                              />
+                            ) : (
+                              <div 
+                                className="ltp-display-cell"
+                                onClick={() => {
+                                  if (isAuthorized) {
+                                    setEditingLtpId(report.id);
+                                    setEditingLtpValue(report.currentPrice.toString());
+                                  }
+                                }}
+                                title={isAuthorized ? "Click to edit LTP" : undefined}
+                                style={{ cursor: isAuthorized ? 'pointer' : 'default' }}
+                              >
+                                <span>{report.currentPrice.toFixed(2)}</span>
+                                {isAuthorized && <span className="ltp-edit-indicator">✎</span>}
+                              </div>
+                            )}
+                          </td>
                           
                           {/* Target */}
                           <td className="text-right monospace">{report.targetPrice.toFixed(2)}</td>
