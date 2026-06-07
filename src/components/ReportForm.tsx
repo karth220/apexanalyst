@@ -27,6 +27,7 @@ export const ReportForm: React.FC<ReportFormProps> = ({
   const [recommendation, setRecommendation] = useState<'BUY' | 'HOLD' | 'SELL'>('BUY');
   const [currentPrice, setCurrentPrice] = useState('');
   const [targetPrice, setTargetPrice] = useState('');
+  const [recoPrice, setRecoPrice] = useState('');
   const [summary, setSummary] = useState('');
   
   // File upload states
@@ -137,6 +138,7 @@ export const ReportForm: React.FC<ReportFormProps> = ({
       summary,
       currentPrice: Number(currentPrice),
       targetPrice: Number(targetPrice),
+      recoPrice: recoPrice ? Number(recoPrice) : Number(currentPrice),
       recommendation,
     };
 
@@ -157,6 +159,7 @@ export const ReportForm: React.FC<ReportFormProps> = ({
     summary: summary || 'A detailed preview of the investment thesis, key metrics, and strategic direction will display here as you write.',
     currentPrice: Number(currentPrice) || 100,
     targetPrice: Number(targetPrice) || 120,
+    recoPrice: recoPrice ? Number(recoPrice) : (Number(currentPrice) || 100),
     recommendation,
   };
 
@@ -283,7 +286,7 @@ export const ReportForm: React.FC<ReportFormProps> = ({
           </div>
 
           <div className="form-group">
-            <label className="form-label" htmlFor="currentPrice">Current Stock Price ($) *</label>
+            <label className="form-label" htmlFor="currentPrice">Current Stock Price (LTP) ($) *</label>
             <input 
               className="form-input"
               type="number" 
@@ -293,6 +296,19 @@ export const ReportForm: React.FC<ReportFormProps> = ({
               value={currentPrice}
               onChange={(e) => setCurrentPrice(e.target.value)}
               required
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label" htmlFor="recoPrice">Price at Recommendation ($)</label>
+            <input 
+              className="form-input"
+              type="number" 
+              step="0.01"
+              id="recoPrice"
+              placeholder="Defaults to Current Price"
+              value={recoPrice}
+              onChange={(e) => setRecoPrice(e.target.value)}
             />
           </div>
 
