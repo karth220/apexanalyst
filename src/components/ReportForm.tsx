@@ -167,7 +167,7 @@ export const ReportForm: React.FC<ReportFormProps> = ({
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'apexanalyst_reports_database.json';
+    link.download = 'apexanalysis_reports_database.json';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
