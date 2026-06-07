@@ -5,13 +5,20 @@ import { ReportCard } from './components/ReportCard';
 import { ReportForm } from './components/ReportForm';
 import { DEFAULT_REPORTS } from './data/reports';
 import type { ResearchReport } from './types';
-import { Search, Filter, CheckCircle, Download } from 'lucide-react';
+import { Search, Filter, CheckCircle, Download, Lock } from 'lucide-react';
 
 const LOCAL_STORAGE_KEY = 'apexanalyst_reports';
+const ANALYST_PASSCODE = 'APEX99';
 
 function App() {
   const [activePage, setActivePage] = useState<'home' | 'upload'>('home');
   const [reports, setReports] = useState<ResearchReport[]>([]);
+  
+  // Authorization states
+  const [isAuthorized, setIsAuthorized] = useState(() => sessionStorage.getItem('apex_analyst_authorized') === 'true');
+  const [passcodeAttempt, setPasscodeAttempt] = useState('');
+  const [passcodeError, setPasscodeError] = useState('');
+
   
   // Filtering and Searching states
   const [searchQuery, setSearchQuery] = useState('');
@@ -54,6 +61,20 @@ function App() {
     }, duration);
     
     return () => clearTimeout(timer);
+  };
+
+  // Handle analyst portal passcode verification
+  const handlePasscodeSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (passcodeAttempt === ANALYST_PASSCODE) {
+      setIsAuthorized(true);
+      sessionStorage.setItem('apex_analyst_authorized', 'true');
+      setPasscodeError('');
+      setPasscodeAttempt('');
+      showToast('Access granted! Welcome to the Analyst Portal.', 'success');
+    } else {
+      setPasscodeError('Invalid passcode. Please try again.');
+    }
   };
 
   // Publish new research report
@@ -203,6 +224,39 @@ function App() {
               )}
             </div>
           </>
+        ) : !isAuthorized ? (
+          /* Secure Access Gate */
+          <div className="access-gate-container animate-fade-in">
+            <div className="access-gate-card">
+              <div className="lock-icon-wrapper">
+                <Lock size={30} />
+              </div>
+              <h2>Secure Analyst Portal</h2>
+              <p>This section is restricted to authorized contributors. Please enter the passcode to access publishing features.</p>
+              
+              <form onSubmit={handlePasscodeSubmit} className="gate-form">
+                <div className="form-group">
+                  <input 
+                    type="password" 
+                    className="form-input text-center" 
+                    placeholder="Enter Access Key" 
+                    value={passcodeAttempt}
+                    onChange={(e) => setPasscodeAttempt(e.target.value)}
+                    autoFocus
+                  />
+                  {passcodeError && <span className="gate-error">{passcodeError}</span>}
+                </div>
+                <div className="gate-actions">
+                  <button type="button" className="btn-secondary" onClick={() => setActivePage('home')}>
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn-submit">
+                    Verify Key
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
         ) : (
           /* Form for Uploading Reports */
           <ReportForm 
