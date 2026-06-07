@@ -1,16 +1,20 @@
-import { Download, User, Calendar } from 'lucide-react';
+import { Download, User, Calendar, Trash2 } from 'lucide-react';
 import type { ResearchReport } from '../types';
 
 interface ReportCardProps {
   report: ResearchReport;
   onDownloadStart?: () => void;
   onDownloadEnd?: () => void;
+  isAnalystMode?: boolean;
+  onDelete?: () => void;
 }
 
 export const ReportCard: React.FC<ReportCardProps> = ({ 
   report, 
   onDownloadStart,
-  onDownloadEnd 
+  onDownloadEnd,
+  isAnalystMode = false,
+  onDelete
 }) => {
   const {
     stockName,
@@ -109,14 +113,29 @@ export const ReportCard: React.FC<ReportCardProps> = ({
           </span>
         </div>
 
-        <button 
-          className="btn-download"
-          onClick={handleDownload}
-          title={`Download ${fileName}`}
-        >
-          <Download size={14} />
-          <span>PDF</span>
-        </button>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          {isAnalystMode && onDelete && (
+            <button 
+              className="btn-delete"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onDelete();
+              }}
+              title="Delete Report"
+            >
+              <Trash2 size={14} />
+            </button>
+          )}
+          <button 
+            className="btn-download"
+            onClick={handleDownload}
+            title={`Download ${fileName}`}
+          >
+            <Download size={14} />
+            <span>PDF</span>
+          </button>
+        </div>
       </div>
     </article>
   );
