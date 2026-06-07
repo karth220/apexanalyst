@@ -11,6 +11,7 @@ export interface ResearchReport {
   summary: string;
   targetPrice: number;
   currentPrice: number;
+  recoPrice: number; // Price when recommendation was made
   recommendation: 'BUY' | 'HOLD' | 'SELL';
 }
 
