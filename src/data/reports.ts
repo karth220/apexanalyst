@@ -17,6 +17,7 @@ export const DEFAULT_REPORTS: ResearchReport[] = [
     summary: 'We maintain our BUY rating on AAPL, driven by robust Services segment revenue expansion and the highly anticipated integration of on-device AI capabilities across the upcoming hardware refresh cycle.',
     currentPrice: 182.50,
     targetPrice: 215.00,
+    recoPrice: 180.00,
     recommendation: 'BUY'
   },
   {
@@ -32,6 +33,7 @@ export const DEFAULT_REPORTS: ResearchReport[] = [
     summary: 'NVDA remains our top sector pick. Strong hyperscaler CapEx projections and the rollout of the Blackwell GPU architecture suggest sustained data center revenues through FY27, maintaining a leading competitive moat.',
     currentPrice: 950.00,
     targetPrice: 1150.00,
+    recoPrice: 900.00,
     recommendation: 'BUY'
   },
   {
@@ -47,6 +49,7 @@ export const DEFAULT_REPORTS: ResearchReport[] = [
     summary: 'We reiterate our HOLD stance on TSLA. While long-term FSD licensing and Robotaxi potential present asymmetric upside, near-term headwind margins from auto price cuts and temporary factory transitions are likely to cap immediate valuation.',
     currentPrice: 175.20,
     targetPrice: 185.00,
+    recoPrice: 180.00,
     recommendation: 'HOLD'
   },
   {
@@ -62,6 +65,7 @@ export const DEFAULT_REPORTS: ResearchReport[] = [
     summary: 'We rate LLY as a BUY. The expansion of manufacturing capacity for Mounjaro and Zepbound, along with a rich late-stage clinical pipeline in Alzheimer\'s and metabolic diseases, will continue to drive premium growth.',
     currentPrice: 780.00,
     targetPrice: 920.00,
+    recoPrice: 800.00,
     recommendation: 'BUY'
   }
 ];
