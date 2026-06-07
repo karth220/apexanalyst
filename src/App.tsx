@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Header } from './components/Header';
 import { MarketTicker } from './components/MarketTicker';
-import { ReportCard } from './components/ReportCard';
 import { ReportForm } from './components/ReportForm';
 import { DEFAULT_REPORTS } from './data/reports';
 import type { ResearchReport } from './types';
-import { Search, Filter, CheckCircle, Download, Lock } from 'lucide-react';
+import { Search, Filter, CheckCircle, Download, Lock, Trash2, ChevronUp, ChevronDown, ArrowUpDown } from 'lucide-react';
 
 const LOCAL_STORAGE_KEY = 'apexanalysis_reports';
 const ANALYST_PASSCODE = 'APEX99';
@@ -18,6 +17,73 @@ function App() {
   const [isAuthorized, setIsAuthorized] = useState(() => sessionStorage.getItem('apex_analyst_authorized') === 'true');
   const [passcodeAttempt, setPasscodeAttempt] = useState('');
   const [passcodeError, setPasscodeError] = useState('');
+
+  // Sort states
+  const [sortField, setSortField] = useState<keyof ResearchReport | 'upside' | 'changeSinceReco'>('date');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+
+  const handleSort = (field: keyof ResearchReport | 'upside' | 'changeSinceReco') => {
+    if (sortField === field) {
+      setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const getSortedReports = () => {
+    const sorted = [...filteredReports];
+    sorted.sort((a, b) => {
+      let valA: any;
+      let valB: any;
+
+      if (sortField === 'upside') {
+        valA = ((a.targetPrice - a.currentPrice) / a.currentPrice) * 100;
+        valB = ((b.targetPrice - b.currentPrice) / b.currentPrice) * 100;
+      } else if (sortField === 'changeSinceReco') {
+        valA = ((a.currentPrice - a.recoPrice) / a.recoPrice) * 100;
+        valB = ((b.currentPrice - b.recoPrice) / b.recoPrice) * 100;
+      } else {
+        valA = a[sortField as keyof ResearchReport];
+        valB = b[sortField as keyof ResearchReport];
+      }
+
+      if (typeof valA === 'string' && typeof valB === 'string') {
+        return sortDirection === 'asc' 
+          ? valA.localeCompare(valB) 
+          : valB.localeCompare(valA);
+      } else {
+        if (sortField === 'date') {
+          return sortDirection === 'asc'
+            ? new Date(valA).getTime() - new Date(valB).getTime()
+            : new Date(valB).getTime() - new Date(valA).getTime();
+        }
+        return sortDirection === 'asc' 
+          ? (valA as number) - (valB as number) 
+          : (valB as number) - (valA as number);
+      }
+    });
+    return sorted;
+  };
+
+  const renderSortIcon = (field: keyof ResearchReport | 'upside' | 'changeSinceReco') => {
+    if (sortField !== field) {
+      return <ArrowUpDown size={10} className="sort-icon-muted" style={{ marginLeft: '0.25rem', verticalAlign: 'middle' }} />;
+    }
+    return sortDirection === 'asc' 
+      ? <ChevronUp size={10} className="sort-icon-active" style={{ marginLeft: '0.25rem', verticalAlign: 'middle' }} /> 
+      : <ChevronDown size={10} className="sort-icon-active" style={{ marginLeft: '0.25rem', verticalAlign: 'middle' }} />;
+  };
+
+  const formatDate = (dateStr: string) => {
+    try {
+      const d = new Date(dateStr);
+      const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+      return `${String(d.getDate()).padStart(2, '0')} ${months[d.getMonth()]} ${d.getFullYear()}`;
+    } catch (e) {
+      return dateStr;
+    }
+  };
 
   
   // Filtering and Searching states
@@ -200,22 +266,176 @@ function App() {
               </div>
             </div>
 
-            {/* Reports Display Grid */}
-            <div className="reports-grid">
+            {/* Reports Display Table */}
+            <div className="table-responsive-container animate-fade-in" style={{ animationDelay: '0.15s' }}>
               {filteredReports.length > 0 ? (
-                filteredReports.map((report, idx) => (
-                  <div key={report.id} style={{ animationDelay: `${0.15 + idx * 0.05}s` }}>
-                    <ReportCard 
-                      report={report} 
-                      onDownloadStart={() => showToast(`Preparing ${report.fileName || report.ticker + '.pdf'} for download...`, 'download')}
-                      onDownloadEnd={() => showToast(`Report for ${report.ticker} downloaded!`, 'success')}
-                      isAnalystMode={isAuthorized}
-                      onDelete={() => handleDeleteReport(report.id, report.ticker)}
-                    />
-                  </div>
-                ))
+                <table className="research-table">
+                  <thead>
+                    <tr>
+                      <th onClick={() => handleSort('date')} className="sortable-header">
+                        <div className="header-cell">
+                          <span>DATE</span>
+                          {renderSortIcon('date')}
+                        </div>
+                      </th>
+                      <th onClick={() => handleSort('stockName')} className="sortable-header">
+                        <div className="header-cell">
+                          <span>STOCK</span>
+                          {renderSortIcon('stockName')}
+                        </div>
+                      </th>
+                      <th onClick={() => handleSort('analyst')} className="sortable-header">
+                        <div className="header-cell">
+                          <span>AUTHOR</span>
+                          {renderSortIcon('analyst')}
+                        </div>
+                      </th>
+                      <th onClick={() => handleSort('currentPrice')} className="sortable-header text-right">
+                        <div className="header-cell justify-end">
+                          <span>LTP</span>
+                          {renderSortIcon('currentPrice')}
+                        </div>
+                      </th>
+                      <th onClick={() => handleSort('targetPrice')} className="sortable-header text-right">
+                        <div className="header-cell justify-end">
+                          <span>TARGET</span>
+                          {renderSortIcon('targetPrice')}
+                        </div>
+                      </th>
+                      <th onClick={() => handleSort('recoPrice')} className="sortable-header text-right">
+                        <div className="header-cell justify-end">
+                          <span>PRICE AT RECO</span>
+                          {renderSortIcon('recoPrice')}
+                        </div>
+                      </th>
+                      <th onClick={() => handleSort('upside')} className="sortable-header text-right">
+                        <div className="header-cell justify-end">
+                          <span>UPSIDE(%)</span>
+                          {renderSortIcon('upside')}
+                        </div>
+                      </th>
+                      <th onClick={() => handleSort('recommendation')} className="sortable-header">
+                        <div className="header-cell">
+                          <span>TYPE</span>
+                          {renderSortIcon('recommendation')}
+                        </div>
+                      </th>
+                      <th className="text-center" style={{ width: '120px' }}>ACTION</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {getSortedReports().map((report) => {
+                      const upsidePercent = ((report.targetPrice - report.currentPrice) / report.currentPrice) * 100;
+                      const changeSinceReco = ((report.currentPrice - report.recoPrice) / report.recoPrice) * 100;
+                      const isPositiveUpside = upsidePercent > 0;
+                      const isNegativeUpside = upsidePercent < 0;
+                      const isPositiveChange = changeSinceReco > 0;
+                      const isNegativeChange = changeSinceReco < 0;
+
+                      // Download function
+                      const handleDownload = (e: React.MouseEvent) => {
+                        e.preventDefault();
+                        showToast(`Preparing ${report.fileName || report.ticker + '.pdf'} for download...`, 'download');
+                        try {
+                          const link = document.createElement('a');
+                          link.href = report.pdfDataUrl;
+                          link.download = report.fileName || `${report.ticker}_Research_Report.pdf`;
+                          document.body.appendChild(link);
+                          link.click();
+                          document.body.removeChild(link);
+                          setTimeout(() => showToast(`Report for ${report.ticker} downloaded!`, 'success'), 600);
+                        } catch (err) {
+                          console.error('Download failed', err);
+                        }
+                      };
+
+                      return (
+                        <tr key={report.id} className="table-row-hover">
+                          {/* Date */}
+                          <td className="monospace">{formatDate(report.date)}</td>
+                          
+                          {/* Stock */}
+                          <td>
+                            <div className="stock-info-cell">
+                              <span className="stock-link-name">{report.stockName}</span>
+                              <span className="stock-ticker-label">{report.ticker}</span>
+                            </div>
+                          </td>
+                          
+                          {/* Author */}
+                          <td>
+                            <div className="author-info-cell">
+                              <span className="author-name-text">{report.analyst}</span>
+                              <div className="author-badges">
+                                {report.targetPrice > report.currentPrice ? (
+                                  <span className="reco-badge-green">▲ Target</span>
+                                ) : (
+                                  <span className="reco-badge-red">▼ Target</span>
+                                )}
+                                {report.currentPrice > report.recoPrice ? (
+                                  <span className="reco-badge-green">▲ Reco</span>
+                                ) : report.currentPrice < report.recoPrice ? (
+                                  <span className="reco-badge-red">▼ Reco</span>
+                                ) : null}
+                              </div>
+                            </div>
+                          </td>
+                          
+                          {/* LTP */}
+                          <td className="text-right monospace">{report.currentPrice.toFixed(2)}</td>
+                          
+                          {/* Target */}
+                          <td className="text-right monospace">{report.targetPrice.toFixed(2)}</td>
+                          
+                          {/* Price at Reco */}
+                          <td className="text-right monospace">
+                            <div className="font-semibold">{report.recoPrice.toFixed(2)}</div>
+                            <div className={`change-reco-text ${isPositiveChange ? 'positive' : isNegativeChange ? 'negative' : 'neutral'}`}>
+                              ({isPositiveChange ? '+' : ''}{changeSinceReco.toFixed(2)}%)
+                            </div>
+                          </td>
+                          
+                          {/* Upside */}
+                          <td className={`text-right monospace font-semibold ${isPositiveUpside ? 'positive' : isNegativeUpside ? 'negative' : 'neutral'}`}>
+                            {isPositiveUpside ? '+' : ''}{upsidePercent.toFixed(2)}%
+                          </td>
+                          
+                          {/* Type */}
+                          <td>
+                            <div className="type-cell">
+                              <span className={`type-dot ${report.recommendation.toLowerCase()}`}></span>
+                              <span className="type-label-text">{report.recommendation.charAt(0).toUpperCase() + report.recommendation.slice(1).toLowerCase()}</span>
+                            </div>
+                          </td>
+                          
+                          {/* Action */}
+                          <td>
+                            <div className="action-cell">
+                              <button 
+                                className="table-btn-pdf"
+                                onClick={handleDownload}
+                                title={`Download PDF: ${report.fileName}`}
+                              >
+                                <span className="pdf-icon-red">PDF</span>
+                              </button>
+                              {isAuthorized && (
+                                <button 
+                                  className="table-btn-delete"
+                                  onClick={() => handleDeleteReport(report.id, report.ticker)}
+                                  title="Delete Report"
+                                >
+                                  <Trash2 size={12} />
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               ) : (
-                <div className="empty-state animate-fade-in">
+                <div className="empty-state">
                   <div className="empty-icon">
                     <Filter size={48} strokeWidth={1.5} />
                   </div>
