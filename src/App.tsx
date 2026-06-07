@@ -106,7 +106,14 @@ function App() {
       if (stored) {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          setReports(parsed);
+          // Self-healing database reset: if it contains old US stock tickers, reset to Indian default listings
+          const hasOldStocks = parsed.some(r => r.ticker === 'AAPL' || r.ticker === 'NVDA' || r.ticker === 'TSLA');
+          if (hasOldStocks) {
+            setReports(DEFAULT_REPORTS);
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(DEFAULT_REPORTS));
+          } else {
+            setReports(parsed);
+          }
           return;
         }
       }
