@@ -286,13 +286,13 @@ export const ReportForm: React.FC<ReportFormProps> = ({
           </div>
 
           <div className="form-group">
-            <label className="form-label" htmlFor="currentPrice">Current Stock Price (LTP) ($) *</label>
+            <label className="form-label" htmlFor="currentPrice">Current Stock Price (LTP) (₹) *</label>
             <input 
               className="form-input"
               type="number" 
               step="0.01"
               id="currentPrice"
-              placeholder="e.g. 182.50"
+              placeholder="e.g. 416.10"
               value={currentPrice}
               onChange={(e) => setCurrentPrice(e.target.value)}
               required
@@ -300,7 +300,7 @@ export const ReportForm: React.FC<ReportFormProps> = ({
           </div>
 
           <div className="form-group">
-            <label className="form-label" htmlFor="recoPrice">Price at Recommendation ($)</label>
+            <label className="form-label" htmlFor="recoPrice">Price at Recommendation (₹)</label>
             <input 
               className="form-input"
               type="number" 
@@ -313,13 +313,13 @@ export const ReportForm: React.FC<ReportFormProps> = ({
           </div>
 
           <div className="form-group">
-            <label className="form-label" htmlFor="targetPrice">Target Price ($) *</label>
+            <label className="form-label" htmlFor="targetPrice">Target Price (₹) *</label>
             <input 
               className="form-input"
               type="number" 
               step="0.01"
               id="targetPrice"
-              placeholder="e.g. 215.00"
+              placeholder="e.g. 550.00"
               value={targetPrice}
               onChange={(e) => setTargetPrice(e.target.value)}
               required
