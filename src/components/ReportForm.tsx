@@ -30,6 +30,37 @@ export const ReportForm: React.FC<ReportFormProps> = ({
   const [recoPrice, setRecoPrice] = useState('');
   const [summary, setSummary] = useState('');
   
+  // Real-time ticker price fetching states
+  const [isFetchingPrice, setIsFetchingPrice] = useState(false);
+
+  const handleTickerBlur = async () => {
+    const cleanTicker = ticker.trim().toUpperCase();
+    if (!cleanTicker) return;
+
+    setIsFetchingPrice(true);
+    try {
+      const response = await fetch(`/api/get-prices?tickers=${cleanTicker}`);
+      if (!response.ok) throw new Error('API failed');
+      const data = await response.json();
+      if (data && data.prices && data.prices[cleanTicker]) {
+        const fetched = data.prices[cleanTicker];
+        if (fetched.price > 0) {
+          setCurrentPrice(fetched.price.toString());
+          if (!recoPrice) {
+            setRecoPrice(fetched.price.toString());
+          }
+          if (fetched.name && !stockName) {
+            setStockName(fetched.name);
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Failed to auto-fetch ticker price:', err);
+    } finally {
+      setIsFetchingPrice(false);
+    }
+  };
+  
   // File upload states
   const [pdfDataUrl, setPdfDataUrl] = useState('');
   const [fileName, setFileName] = useState('');
@@ -224,11 +255,17 @@ export const ReportForm: React.FC<ReportFormProps> = ({
               className="form-input"
               type="text" 
               id="ticker"
-              placeholder="e.g. AAPL"
+              placeholder="e.g. HONASA"
               value={ticker}
               onChange={(e) => setTicker(e.target.value)}
+              onBlur={handleTickerBlur}
               required
             />
+            {isFetchingPrice && (
+              <span style={{ fontSize: '0.75rem', color: 'var(--color-cyan)', marginTop: '0.25rem', display: 'block' }}>
+                Fetching current market details...
+              </span>
+            )}
           </div>
 
           <div className="form-group">

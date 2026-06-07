@@ -18,10 +18,6 @@ function App() {
   const [passcodeAttempt, setPasscodeAttempt] = useState('');
   const [passcodeError, setPasscodeError] = useState('');
 
-  // LTP editing states
-  const [editingLtpId, setEditingLtpId] = useState<string | null>(null);
-  const [editingLtpValue, setEditingLtpValue] = useState('');
-
   // Real-time fetched prices state
   const [fetchedPrices, setFetchedPrices] = useState<{ [ticker: string]: number }>({});
 
@@ -262,24 +258,7 @@ function App() {
     }
   };
 
-  // Save manually edited LTP
-  const handleSaveLtp = (id: string) => {
-    const val = parseFloat(editingLtpValue);
-    if (!isNaN(val) && val > 0) {
-      const updated = reports.map(r => {
-        if (r.id === id) {
-          return { ...r, currentPrice: Number(val.toFixed(2)) };
-        }
-        return r;
-      });
-      setReports(updated);
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updated));
-      setEditingLtpId(null);
-      showToast(`LTP updated successfully.`, 'success');
-    } else {
-      setEditingLtpId(null);
-    }
-  };
+
 
   // Import external database JSON
   const handleImportDatabase = (importedReports: ResearchReport[]) => {
@@ -497,36 +476,9 @@ function App() {
                           
                           {/* LTP */}
                           <td className="text-right monospace">
-                            {editingLtpId === report.id ? (
-                              <input
-                                type="number"
-                                step="0.01"
-                                className="table-ltp-input monospace"
-                                value={editingLtpValue}
-                                onChange={(e) => setEditingLtpValue(e.target.value)}
-                                onBlur={() => handleSaveLtp(report.id)}
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') handleSaveLtp(report.id);
-                                  if (e.key === 'Escape') setEditingLtpId(null);
-                                }}
-                                autoFocus
-                              />
-                            ) : (
-                              <div 
-                                className="ltp-display-cell"
-                                onClick={() => {
-                                  if (isAuthorized) {
-                                    setEditingLtpId(report.id);
-                                    setEditingLtpValue(report.currentPrice.toString());
-                                  }
-                                }}
-                                title={isAuthorized ? "Click to edit LTP" : undefined}
-                                style={{ cursor: isAuthorized ? 'pointer' : 'default' }}
-                              >
-                                <span>₹{report.currentPrice.toFixed(2)}</span>
-                                {isAuthorized && <span className="ltp-edit-indicator">✎</span>}
-                              </div>
-                            )}
+                            <div className="ltp-display-cell" style={{ cursor: 'default' }}>
+                              <span>₹{report.currentPrice.toFixed(2)}</span>
+                            </div>
                           </td>
                           
                           {/* Target */}
