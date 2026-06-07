@@ -13,7 +13,7 @@ export const Header: React.FC<HeaderProps> = ({ activePage, setActivePage }) => 
           <TrendingUp size={28} strokeWidth={2.5} />
         </div>
         <span>
-          ApexAnalyst
+          ApexAnalysis
           <span className="logo-badge">PRO</span>
         </span>
       </div>
