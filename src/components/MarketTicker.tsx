@@ -4,11 +4,11 @@ import type { MarketIndex } from '../types';
 
 export const MarketTicker: React.FC = () => {
   const [indices, setIndices] = useState<MarketIndex[]>([
-    { name: 'S&P 500', value: 5410.25, change: 32.50, changePercent: 0.60 },
-    { name: 'NASDAQ', value: 18720.40, change: 185.10, changePercent: 1.00 },
-    { name: 'DOW JONES', value: 39110.15, change: -45.30, changePercent: -0.12 },
-    { name: 'RUSSELL 2000', value: 2085.60, change: 8.90, changePercent: 0.43 },
-    { name: 'VIX', value: 12.85, change: -0.45, changePercent: -3.38 },
+    { name: 'NIFTY 50', value: 23290.15, change: 125.50, changePercent: 0.54 },
+    { name: 'SENSEX', value: 76690.40, change: 430.10, changePercent: 0.56 },
+    { name: 'NIFTY BANK', value: 49800.20, change: -110.30, changePercent: -0.22 },
+    { name: 'NIFTY IT', value: 34850.60, change: 295.90, changePercent: 0.86 },
+    { name: 'INDIA VIX', value: 13.85, change: -0.65, changePercent: -4.48 },
   ]);
 
   // Simulate market fluctuation to make the dashboard feel live and interactive
@@ -16,14 +16,14 @@ export const MarketTicker: React.FC = () => {
     const interval = setInterval(() => {
       setIndices(prevIndices => 
         prevIndices.map(index => {
-          const isVix = index.name === 'VIX';
+          const isVix = index.name === 'INDIA VIX';
           const maxVolatility = isVix ? 0.08 : 0.005; // VIX moves faster
           const changePercent = (Math.random() - (isVix ? 0.52 : 0.48)) * maxVolatility; // slight upward bias for indices
           const newValue = index.value * (1 + changePercent);
           const valueDiff = newValue - index.value;
           const newChange = index.change + valueDiff;
           // Standard reference price baseline to prevent running away too far
-          const baseline = isVix ? 13.00 : index.name === 'S&P 500' ? 5400 : index.name === 'NASDAQ' ? 18700 : index.name === 'DOW JONES' ? 39100 : 2080;
+          const baseline = isVix ? 14.00 : index.name === 'NIFTY 50' ? 23300 : index.name === 'SENSEX' ? 76700 : index.name === 'NIFTY BANK' ? 49800 : 34800;
           const newChangePercent = (newChange / baseline) * 100;
 
           return {
