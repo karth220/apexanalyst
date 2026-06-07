@@ -1428,3 +1428,36 @@ a {
 .font-semibold {
   font-weight: 600;
 }
+
+/* Editable LTP Input styles */
+.table-ltp-input {
+  width: 80px;
+  background-color: var(--bg-main);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  padding: 0.2rem 0.4rem;
+  font-size: 0.9rem;
+  text-align: right;
+  outline: none;
+}
+
+.ltp-display-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.ltp-edit-indicator {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  opacity: 0;
+  transition: var(--transition-smooth);
+}
+
+.ltp-display-cell:hover .ltp-edit-indicator {
+  opacity: 1;
+  color: var(--color-cyan);
+}
