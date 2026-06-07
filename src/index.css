@@ -1165,3 +1165,266 @@ a {
 .text-center {
   text-align: center;
 }
+
+/* Table Layout Styles */
+.table-responsive-container {
+  width: 100%;
+  overflow-x: auto;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  margin-bottom: 2rem;
+}
+
+.research-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.research-table th {
+  padding: 1rem 1.25rem;
+  background-color: rgba(255, 255, 255, 0.01);
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+.research-table td {
+  padding: 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: middle;
+  color: var(--text-primary);
+}
+
+.table-row-hover {
+  transition: var(--transition-smooth);
+}
+
+.table-row-hover:hover {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+
+/* Sorting headers */
+.sortable-header {
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.sortable-header:hover {
+  color: var(--text-primary);
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.header-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.justify-end {
+  justify-content: flex-end;
+}
+
+.sort-icon-muted {
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+.sort-icon-active {
+  color: var(--color-primary);
+  filter: drop-shadow(0 0 4px rgba(99, 102, 241, 0.5));
+}
+
+/* Cell sub-layouts */
+.stock-info-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.stock-link-name {
+  color: #38bdf8; /* Blue link-like color as in reference image */
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.stock-link-name:hover {
+  color: #7dd3fc;
+  text-decoration: underline;
+}
+
+.stock-ticker-label {
+  font-family: monospace;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.author-info-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.author-name-text {
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+.author-badges {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+/* Recommendation/Target Status Badges */
+.reco-badge-green {
+  font-size: 0.65rem;
+  font-weight: 700;
+  background-color: rgba(16, 185, 129, 0.08);
+  color: var(--color-emerald);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  padding: 0.1rem 0.35rem;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+}
+
+.reco-badge-red {
+  font-size: 0.65rem;
+  font-weight: 700;
+  background-color: rgba(244, 63, 94, 0.08);
+  color: var(--color-rose);
+  border: 1px solid rgba(244, 63, 94, 0.2);
+  padding: 0.1rem 0.35rem;
+  border-radius: var(--radius-sm);
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Price at reco change text */
+.change-reco-text {
+  font-size: 0.75rem;
+  margin-top: 0.15rem;
+}
+
+.change-reco-text.positive {
+  color: var(--color-emerald);
+}
+
+.change-reco-text.negative {
+  color: var(--color-rose);
+}
+
+.change-reco-text.neutral {
+  color: var(--text-muted);
+}
+
+/* Dot recommendation badge */
+.type-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.type-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  display: inline-block;
+}
+
+.type-dot.buy {
+  background-color: var(--color-emerald);
+  box-shadow: 0 0 6px var(--color-emerald);
+}
+
+.type-dot.hold {
+  background-color: var(--color-amber);
+  box-shadow: 0 0 6px var(--color-amber);
+}
+
+.type-dot.sell {
+  background-color: var(--color-rose);
+  box-shadow: 0 0 6px var(--color-rose);
+}
+
+.type-label-text {
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+/* Action button configurations */
+.action-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.table-btn-pdf {
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid #e2e8f0;
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  transition: var(--transition-smooth);
+}
+
+.table-btn-pdf:hover {
+  background: #f8fafc;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.pdf-icon-red {
+  color: #ef4444; /* Red color matching default pdf icons */
+  font-weight: 800;
+}
+
+.table-btn-delete {
+  background: rgba(244, 63, 94, 0.08);
+  border: 1px solid rgba(244, 63, 94, 0.2);
+  color: var(--color-rose);
+  padding: 0.4rem;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-smooth);
+}
+
+.table-btn-delete:hover {
+  background-color: var(--color-rose);
+  color: #fff;
+  border-color: var(--color-rose);
+  box-shadow: var(--glow-rose);
+}
+
+/* Global utility modifiers */
+.text-right {
+  text-align: right;
+}
+
+.monospace {
+  font-family: monospace;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
